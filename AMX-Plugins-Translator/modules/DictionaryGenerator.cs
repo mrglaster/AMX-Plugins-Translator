@@ -175,6 +175,7 @@ namespace DictionaryGenerator.modules
             this.pairsContainer = translationContentContainer;
         }
         
+        /**Global plugin processing*/
         public void handlePlugin()
         {
             generateHarcodelessPlugin();
