@@ -184,12 +184,10 @@ namespace DictionaryGenerator.modules
             using (StreamWriter sw = File.CreateText(Path.GetDirectoryName(fileName)+ "\\" +generateDictionaryName(fileName)))
             {   
                 Console.WriteLine(Path.GetDirectoryName(fileName)+ generateDictionaryName(fileName));
-
-                //TODO CHECK DICTIONARY FILE OUTPUT
                 
-                Console.WriteLine("Writing Dictionary on the Source Language");
+                Console.WriteLine("Writing data using the source language");
                 Console.WriteLine(" ");
-                //Write to dictionary source language
+                //Write to dictionary source language data
                 sw.WriteLine('['+sourceLanguage+']');
                 for (int i = 0; i < pluginDictionaryKeys.Count; i++)
                     sw.WriteLine($"{pluginDictionaryKeys.ElementAt(i)} = {pluginDictionaryValues.ElementAt(i)}");
