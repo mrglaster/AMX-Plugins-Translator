@@ -36,7 +36,8 @@ namespace DictionaryGenerator.modules
             return id >= 0 & id <= PluginCodeAnalyzer._codeLineIdentifiers.Length;
         }
 
-
+        
+        /**Returns hardcoded part of the code line includin the quotes*/
         public static String getHardcodedFullPart(string codeLine)
         {
             if (!PluginCodeAnalyzer.isRequiredLine(codeLine))
