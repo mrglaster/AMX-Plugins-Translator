@@ -13,6 +13,10 @@ This is not a difficult task, but sometimes it takes a lot of time to implement 
 This utility automates the above mentioned tasks. You just need to specify the path to the plugin, the source language of the hardcode and the list of languages ​​you want to translate the plugin into.
 You can leave last argument out, then the utility will translate the plugin into all supported languages
 
+## Requirements
+
+[.NET 6.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+
 ## Example of utility work
 
 ### Source code of Plugin
