@@ -1,225 +1,47 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using static DictionaryGenerator.modules.UtilityInputsChecker;
+using System.Threading.Tasks;
+using GTranslate.Translators;
 
 namespace DictionaryGenerator.modules
-{    
-    
-    public class DictionaryGenerator
+{
+    public class TextTranslator
     {
-        private Dictionary<String, Dictionary<String, String>> pairsContainer;
-        
-        //Name of input sma file
-        private string fileName;
 
-
-        
-        //Default language of the plugin
-        private string sourceLanguage = "en";
-
-
-        
-        //List of languages for plugin translate (as the default option, plugin'll be translated to all supported languages) 
-        private String[] langsTranslateTo = TextTranslator._allSupportedLanguages;
-
-
-        /**Constructor of the class for default output lang list usage*/
-        public DictionaryGenerator(string fileNameI, string sourceLangI)
+        //List of ALL languages
+        public static string[] _allSupportedLanguages =
         {
-            if (!isSma(fileNameI))
-            {
-                throw new ArgumentException("Input file is not a AMXMODX Script File!");
-            }
-            langSupportCheck(new []{sourceLangI});
-            sourceLanguage = sourceLangI;
-            Debug.WriteLine("There is no user-given output languages list, so we'll use DEFAULT setting: ALL SUPPORTED LANGS");
-            this.fileName = fileNameI;
-            this.sourceLanguage = sourceLangI;
-            this.langsTranslateTo = TextTranslator._allSupportedLanguages;
-            
-           // for (int i = 0; i < langsTranslateTo.Length; i++) translationPairs[langsTranslateTo[i]] = new Dictionary<string, string>();
-            
-        }
+            "en", "de", "sr", "tr", "fr", "sv", "da", "pl", "nl", "es", "bp", "cz", "fi", "bg", "ro", "hu", "lt", "sk",
+            "mk", "hr", "bs", "ru", "cn", "al", "ua", "lv"
+        };
+
         
-        /**Returns name for dictionary text file by plugin's file name*/
-        public static string generateDictionaryName(string pluginFileName)
+        public static string[] translatorCodes = {
+            "en", "de", "sr", "tr", "fr", "sv", "da", "pl", "nl", "es", "pt", "cs", "fi", "bg", "ro", "hu", "lt", "sk",
+            "mk", "hr", "bs", "ru", "zh", "sq", "uk", "lv"
+        };
+        
+        public static bool isSupportedLanguage(string language)
         {
-            string dictName = pluginFileName;
-            dictName = Path.GetFileName(dictName).Replace(".sma", ".txt");
-            return dictName;
+            return _allSupportedLanguages.Contains(language);
         }
-        
-        /**Generates code line for dictionary registration*/
-        public string generateDictionaryInitLine(string scriptPath)
+
+
+        public static string getTranslatedText(string sourceText, string resultLanguage)
         {
-            return "register_dictionary(" + '"' + generateDictionaryName(scriptPath) + '"' + ");";
+            if (!isSupportedLanguage(resultLanguage)) throw new Exception($"Language {resultLanguage} is not supported by AMXMODX!");
+            if (sourceText.Length == 0) throw new Exception("Unable to process 0-length string!");
+            string translatorLang =
+                translatorCodes[PluginCodeAnalyzer.getIdByValue(_allSupportedLanguages, resultLanguage)];
+            string result = processTranslationApi(sourceText, translatorLang).Result + " ";
+            return result.Replace("% с", " %s ").Replace("% д", " %d ").Replace("% и", " %i ").Replace(" %с ", " %s ").Replace( "%д ", " %d ").Replace(" %и ", " %i ");
         }
 
-        
-        
-        
-        /**Constrictor for cases when output langs list is given */
-        public DictionaryGenerator(string filenameI, string sourceLangI ,string[] outputLangsI){
-            
-            //Input File Check
-            if (!isSma(filenameI)) {
-                throw new ArgumentException("Input file is not a AMXMODX Script File!");
-            }
-            
-            //Supported Output Languages Array check
-            Debug.WriteLine("Output Languages List Check...");
-            langSupportCheck(new []{sourceLangI});
-            langSupportCheck(outputLangsI);
-            this.fileName = filenameI;
-            if (outputLangsI.Length == 0)
-            {
-                Debug.WriteLine("Custom output languages list is empty, so we'll use default languages list");
-                this.langsTranslateTo = TextTranslator._allSupportedLanguages;
-            } else {
-                Debug.WriteLine("Problems not found!");
-                this.langsTranslateTo = outputLangsI;
-            }
-
-            
-            
-        }
-
-        /**Generates the name for output script*/
-        public string generateOutputScriptName(string sourcePath)
+        public static async Task<string> processTranslationApi(string sourceText, string outputLang)
         {
-            if (!File.Exists(sourcePath)) throw new Exception($"Error! Input file {sourcePath} not found!");
-            if (!isSma(sourcePath)) throw new Exception($"Input file {sourcePath} is not an AMX Script path!");
-            string dirName = Path.GetDirectoryName(sourcePath);
-            string fileName = Path.GetFileNameWithoutExtension(sourcePath)+"_translated.sma";
-            return dirName + fileName;
-        }
-
-
-        /**Replaces Hardcoded Strings to Dictionary References + Creates Dictionary Identifyers*/
-        public void generateHarcodelessPlugin()
-        {    
-            Console.WriteLine("Replacing plugin's hardcoded strings to Dictionary References");
-            Dictionary<String, Dictionary<String, String>> translationContentContainer = new Dictionary<string, Dictionary<string, string>>();
-            if (langsTranslateTo.Contains(sourceLanguage)) langsTranslateTo = langsTranslateTo.Where(val => val != sourceLanguage).ToArray();
-            for (int i = 0; i < langsTranslateTo.Length; i++)
-                try
-                {
-                    translationContentContainer.Add(langsTranslateTo[i], new Dictionary<string, string>());
-                }
-                catch (Exception e)
-                {
-                    // ignored
-                }
-
-            translationContentContainer.Add(sourceLanguage, new Dictionary<string, string>());
-            
-            
-            var outputScriptFileName = generateOutputScriptName(this.fileName);
-            if (File.Exists(outputScriptFileName)) File.Delete(outputScriptFileName);
-            
-            using (StreamWriter sw = File.CreateText(outputScriptFileName))
-            {
-                sw.WriteLine(
-                    "//Plugins was translated with AMX Plugin Translator: https://github.com/mrglaster/AMX-Plugin-Translator");
-
-
-                foreach (var codeLine in File.ReadAllLines(this.fileName))
-                {
-                    string lineCopy = codeLine;
-                    if (lineCopy.Contains("public plugin_init() {"))
-                        lineCopy = lineCopy + '\n' + generateDictionaryInitLine(this.fileName) + '\n';
-                    if (PluginCodeAnalyzer.isRequiredLine(lineCopy))
-                    {
-                        var hardcoded = CodeLineProcessor.getHardcodedString(lineCopy);
-                        if (this.sourceLanguage != "en")
-                        {
-                            Debug.WriteLine($"Generating Dictionary Key for line {hardcoded}");
-                            hardcoded = TextTranslator.getTranslatedText("hardcoded", "en");
-                        }
-
-                        var dicName = CodeLineProcessor.generateDictionaryLine(hardcoded);
-                        translationContentContainer[sourceLanguage][dicName] = hardcoded.Replace(@"\", "ы").Replace("ыr", " ").Replace("ыw", " ");
-                        
-                        if (!lineCopy.Contains("menu_create") && !lineCopy.Contains("menu_additem") &&
-                            !lineCopy.Contains("menu_setprop"))
-                        {
-                            string replacebleString = '"' + "%L" + '"' + ',' + " LANG_PLAYER," + '"' + dicName + '"';
-                            lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy),
-                                replacebleString);
-                        }
-
-                        if (lineCopy.Contains("menu_create") )
-                        {
-                            sw.WriteLine("new szStringBuf[64]");
-                            sw.WriteLine($"formatex(szStringBuf, charsmax(szStringBuf), " + '"' + "%L" + '"' +
-                                         $", LANG_PLAYER," + '"' + dicName + '"' + ");");
-                            lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy),
-                                "szStringBuf");
-                        }
-
-                        if (lineCopy.Contains("menu_additem"))
-                        {
-                            sw.WriteLine("formatex(szStringBuf, charsmax(szStringBuf)," + '"' + "%L" + '"' +
-                                         $", LANG_PLAYER," + '"' + dicName + '"' + ");");
-                            lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy), "szStringBuf");
-                        }
-
-                    }
-
-                    lineCopy = lineCopy.Replace(@"\w", "").Replace(@"\s", "").Replace(@"\y", "");
-                    sw.WriteLine(lineCopy);
-                }
-            }
-            this.pairsContainer = translationContentContainer;
-        }
-        
-        public void handlePlugin()
-        {
-            generateHarcodelessPlugin();
-            var pluginDictionaryKeys = pairsContainer[sourceLanguage].Keys;
-            var pluginDictionaryValues = pairsContainer[sourceLanguage].Values;
-            using (StreamWriter sw = File.CreateText(Path.GetDirectoryName(fileName)+ "\\" +generateDictionaryName(fileName)))
-            {   
-                Console.WriteLine(Path.GetDirectoryName(fileName)+ generateDictionaryName(fileName));
-
-                //TODO CHECK DICTIONARY FILE OUTPUT
-                
-                Console.WriteLine("Writing Dictionary on the Source Language");
-                Console.WriteLine(" ");
-                //Write to dictionary source language
-                sw.WriteLine('['+sourceLanguage+']');
-                for (int i = 0; i < pluginDictionaryKeys.Count; i++)
-                    sw.WriteLine($"{pluginDictionaryKeys.ElementAt(i)} = {pluginDictionaryValues.ElementAt(i)}");
-                sw.WriteLine(" ");
-                
-                
-                //Translation Loops
-                for (int i = 0; i < langsTranslateTo.Length; i++)
-                {
-                    if (langsTranslateTo[i] != sourceLanguage) {
-                        Console.WriteLine($"Translating plugin to: {langsTranslateTo[i]}");
-                        Console.WriteLine(" ");
-                        sw.WriteLine('['+langsTranslateTo[i]+']');
-                        for (int j = 0; j < pluginDictionaryValues.Count; j++)
-                        {    
-                            Console.WriteLine($"Progress: {(int)((double)j / (double)pluginDictionaryValues.Count * 100)}%");
-                            sw.WriteLine($"{pluginDictionaryKeys.ElementAt(j)} = {TextTranslator.getTranslatedText(pluginDictionaryValues.ElementAt(j),langsTranslateTo[i])}");
-                        }
-                        Console.WriteLine(" ");
-                        sw.WriteLine(" ");
-    
-                    }
-                    
-                }
-                Console.WriteLine("Dictionary Was Successfully Generated!");
-                
-            }
-              
+            var translator = new AggregateTranslator();
+            var result = await translator.TranslateAsync(sourceText, outputLang);
+            return result.Translation;
         }
     }
 }
-
-    
