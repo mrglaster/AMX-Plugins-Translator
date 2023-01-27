@@ -20,7 +20,6 @@ namespace DictionaryGenerator.modules
             "log_message",
             "log_amx",
             "log_to_file",
-            "menu_setprop",
             "menu_create",
             "menu_additem"
         };
