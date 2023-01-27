@@ -13,6 +13,23 @@ This is not a difficult task, but sometimes it takes a lot of time to implement 
 This utility automates the above mentioned tasks. You just need to specify the path to the plugin, the source language of the hardcode and the list of languages ​​you want to translate the plugin into.
 You can leave last argument out, then the utility will translate the plugin into all supported languages
 
+Utility will modify lines containing following functions
+
+```
+            client_print
+            client_print_color
+            console_print
+            engclient_print
+            server_print
+            show_hudmessage
+            show_dhudmessage
+            log_message
+            log_amx
+            log_to_file
+            menu_create
+            menu_additem
+```
+
 ## Requirements
 
 [.NET 6.0 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
