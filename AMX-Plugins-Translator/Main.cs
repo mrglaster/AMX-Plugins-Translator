@@ -53,8 +53,9 @@ namespace DictionaryGenerator
                         List<string> listOfLangs = new List<string>(langList.Replace(" ", "").Split(","));
                         if (listOfLangs.Count == 0) throw new Exception("List of Languages not Found!");
                         for (int i = 0; i < listOfLangs.Count; i++) if (!TextTranslator.isSupportedLanguage(listOfLangs[i])) throw new Exception($"Unknown Language: {listOfLangs[i]}");
-
+                        if (listOfLangs.Count == 0 && langList.Length != 0) listOfLangs.Add(langList.Replace('"'.ToString(), ""));
                         if (listOfLangs.Contains(sourceLang)) listOfLangs.Remove(sourceLang);
+                        Console.WriteLine(listOfLangs.ToArray()[0]);
                         Console.WriteLine(" ");
                         Console.WriteLine(" ");
                         Console.WriteLine($"Detected {listOfLangs.Count} Languages: {listOfLangs.Aggregate((a, b) => a + ", " + b)}");

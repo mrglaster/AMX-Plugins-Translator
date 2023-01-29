@@ -24,25 +24,7 @@ namespace DictionaryGenerator.modules
         
         //List of languages for plugin translate (as the default option, plugin'll be translated to all supported languages) 
         private String[] langsTranslateTo = TextTranslator._allSupportedLanguages;
-
-
-        /**Constructor of the class for default output lang list usage*/
-        public DictionaryGenerator(string fileNameI, string sourceLangI)
-        {
-            if (!isSma(fileNameI))
-            {
-                throw new ArgumentException("Input file is not a AMXMODX Script File!");
-            }
-            langSupportCheck(new []{sourceLangI});
-            sourceLanguage = sourceLangI;
-            Debug.WriteLine("There is no user-given output languages list, so we'll use DEFAULT setting: ALL SUPPORTED LANGS");
-            this.fileName = fileNameI;
-            this.sourceLanguage = sourceLangI;
-            this.langsTranslateTo = TextTranslator._allSupportedLanguages;
-            
-           // for (int i = 0; i < langsTranslateTo.Length; i++) translationPairs[langsTranslateTo[i]] = new Dictionary<string, string>();
-            
-        }
+        
         
         /**Returns name for dictionary text file by plugin's file name*/
         public static string generateDictionaryName(string pluginFileName)
@@ -62,7 +44,7 @@ namespace DictionaryGenerator.modules
         
         
         /**Constrictor for cases when output langs list is given */
-        public DictionaryGenerator(string filenameI, string sourceLangI ,string[] outputLangsI){
+        public DictionaryGenerator(string filenameI, string sourceLangI, string[] outputLangsI){
             
             //Input File Check
             if (!isSma(filenameI)) {
@@ -72,20 +54,37 @@ namespace DictionaryGenerator.modules
             //Supported Output Languages Array check
             Debug.WriteLine("Output Languages List Check...");
             langSupportCheck(new []{sourceLangI});
+            this.sourceLanguage = sourceLangI;
             langSupportCheck(outputLangsI);
             this.fileName = filenameI;
             if (outputLangsI.Length == 0)
             {
-                Debug.WriteLine("Custom output languages list is empty, so we'll use default languages list");
+                Console.WriteLine("Custom output languages list is empty, so we'll use default languages list");
                 this.langsTranslateTo = TextTranslator._allSupportedLanguages;
             } else {
-                Debug.WriteLine("Problems not found!");
+                Console.WriteLine("Problems not found!");
                 this.langsTranslateTo = outputLangsI;
             }
+        }
+        
+        
+        /**Constructor of the class for default output lang list usage*/
+        public DictionaryGenerator(string fileNameI, string sourceLangI)
+        {
+            if (!isSma(fileNameI))
+            {
+                throw new ArgumentException("Input file is not a AMXMODX Script File!");
+            }
+            langSupportCheck(new []{sourceLangI});
+            Debug.WriteLine("There is no user-given output languages list, so we'll use DEFAULT setting: ALL SUPPORTED LANGS");
+            this.fileName = fileNameI;
+            this.sourceLanguage = sourceLangI;
+            this.langsTranslateTo = TextTranslator._allSupportedLanguages;
 
             
-            
         }
+        
+        
 
         /**Generates the name for output script*/
         public string generateOutputScriptName(string sourcePath)
@@ -134,13 +133,14 @@ namespace DictionaryGenerator.modules
                     if (PluginCodeAnalyzer.isRequiredLine(lineCopy))
                     {
                         var hardcoded = CodeLineProcessor.getHardcodedString(lineCopy);
+                        var hardcodedEnglish = "";
                         if (this.sourceLanguage != "en")
                         {
-                            Debug.WriteLine($"Generating Dictionary Key for line {hardcoded}");
-                            hardcoded = TextTranslator.getTranslatedText("hardcoded", "en");
+                            Console.WriteLine($"Generating Dictionary Key for line:  {hardcoded}");
+                            hardcodedEnglish = TextTranslator.getTranslatedText(hardcoded, "en");
                         }
 
-                        var dicName = CodeLineProcessor.generateDictionaryLine(hardcoded);
+                        var dicName = CodeLineProcessor.generateDictionaryLine(hardcodedEnglish);
                         translationContentContainer[sourceLanguage][dicName] = hardcoded.Replace(@"\", "ы").Replace("ыr", " ").Replace("ыw", " ");
                         
                         if (!lineCopy.Contains("menu_create") && !lineCopy.Contains("menu_additem") &&
@@ -182,13 +182,10 @@ namespace DictionaryGenerator.modules
             var pluginDictionaryKeys = pairsContainer[sourceLanguage].Keys;
             var pluginDictionaryValues = pairsContainer[sourceLanguage].Values;
             using (StreamWriter sw = File.CreateText(Path.GetDirectoryName(fileName)+ "\\" +generateDictionaryName(fileName)))
-            {   
-                Console.WriteLine(Path.GetDirectoryName(fileName)+ generateDictionaryName(fileName));
-
-                //TODO CHECK DICTIONARY FILE OUTPUT
-                
+            {
                 Console.WriteLine("Writing Dictionary on the Source Language");
                 Console.WriteLine(" ");
+                
                 //Write to dictionary source language
                 sw.WriteLine('['+sourceLanguage+']');
                 for (int i = 0; i < pluginDictionaryKeys.Count; i++)
@@ -208,6 +205,7 @@ namespace DictionaryGenerator.modules
                             Console.WriteLine($"Progress: {(int)((double)j / (double)pluginDictionaryValues.Count * 100)}%");
                             sw.WriteLine($"{pluginDictionaryKeys.ElementAt(j)} = {TextTranslator.getTranslatedText(pluginDictionaryValues.ElementAt(j),langsTranslateTo[i])}");
                         }
+                        Console.WriteLine("Progress: 100%");
                         Console.WriteLine(" ");
                         sw.WriteLine(" ");
     

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj": {}
+    "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator-main\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj": {
+    "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator-main\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj",
+        "projectUniqueName": "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator-main\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj",
         "projectName": "AMX-Plugins-Translator",
-        "projectPath": "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj",
+        "projectPath": "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator-main\\AMX-Plugins-Translator\\AMX-Plugins-Translator.csproj",
         "packagesPath": "C:\\Users\\mrglaster\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\AMX-Plugins-Translator\\obj\\",
+        "outputPath": "C:\\Users\\mrglaster\\Desktop\\AMX-Plugins-Translator-main\\AMX-Plugins-Translator\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mrglaster\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -41,14 +41,6 @@
             "GTranslate": {
               "target": "Package",
               "version": "[2.1.3, )"
-            },
-            "Google.Apis.Translate.v2": {
-              "target": "Package",
-              "version": "[1.59.0.875, )"
-            },
-            "Wadereye.GoogleTranslateFreeApi": {
-              "target": "Package",
-              "version": "[1.3.0, )"
             }
           },
           "imports": [
