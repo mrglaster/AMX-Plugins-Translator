@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using GTranslate.Translators;
@@ -12,13 +12,13 @@ namespace DictionaryGenerator.modules
         public static string[] _allSupportedLanguages =
         {
             "en", "de", "sr", "tr", "fr", "sv", "da", "pl", "nl", "es", "bp", "cz", "fi", "bg", "ro", "hu", "lt", "sk",
-            "mk", "hr", "bs", "ru", "cn", "al", "ua", "lv", "hr", "bs"
+            "mk", "hr", "bs", "ru", "cn", "al", "ua", "lv"
         };
 
         
         public static string[] translatorCodes = {
             "en", "de", "sr", "tr", "fr", "sv", "da", "pl", "nl", "es", "pt", "cs", "fi", "bg", "ro", "hu", "lt", "sk",
-            "mk", "hr", "bs", "ru", "zh", "sq", "uk", "lv", "hr", "bs"
+            "mk", "hr", "bs", "ru", "zh", "sq", "uk", "lv"
         };
         
         public static bool isSupportedLanguage(string language)
