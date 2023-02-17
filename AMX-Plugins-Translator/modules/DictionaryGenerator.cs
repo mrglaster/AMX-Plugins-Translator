@@ -130,50 +130,60 @@ namespace DictionaryGenerator.modules
                     string lineCopy = codeLine;
                     if (lineCopy.Contains("public plugin_init() {"))
                         lineCopy = lineCopy + '\n' + generateDictionaryInitLine(this.fileName) + '\n';
+                    
                     if (PluginCodeAnalyzer.isRequiredLine(lineCopy))
                     {
-                        var hardcoded = CodeLineProcessor.getHardcodedString(lineCopy);
-                        var hardcodedEnglish = "";
-                        if (this.sourceLanguage != "en")
-                        {
-                            Console.WriteLine($"Generating Dictionary Key for line:  {hardcoded}");
-                            hardcodedEnglish = TextTranslator.getTranslatedText(hardcoded, "en");
-                        }
-
-                        var dicName = CodeLineProcessor.generateDictionaryLine(hardcodedEnglish);
-                        translationContentContainer[sourceLanguage][dicName] = hardcoded.Replace(@"\", "ы").Replace("ыr", " ").Replace("ыw", " ");
                         
-                        if (!lineCopy.Contains("menu_create") && !lineCopy.Contains("menu_additem") &&
-                            !lineCopy.Contains("menu_setprop"))
+                        var hardcoded = CodeLineProcessor.getHardcodedString(lineCopy);
+                        if (hardcoded.Length != 0)
                         {
-                            string replacebleString = '"' + "%L" + '"' + ',' + " LANG_PLAYER," + '"' + dicName + '"';
-                            lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy),
-                                replacebleString);
+                            
+                            var hardcodedEnglish = "";
+                            if (this.sourceLanguage != "en")
+                            {
+                                Console.WriteLine($"Generating Dictionary Key for line:  {hardcoded}");
+                                hardcodedEnglish = TextTranslator.getTranslatedText(hardcoded, "en");
+                            }
+                            else hardcodedEnglish = hardcoded;
+        
+                            var dicName = CodeLineProcessor.generateDictionaryLine(hardcodedEnglish);
+                       
+                            translationContentContainer[sourceLanguage][dicName] = hardcoded.Replace(@"\", "ы").Replace("ыr", " ").Replace("ыw", " ");
+                        
+                            if (!lineCopy.Contains("menu_create") && !lineCopy.Contains("menu_additem") &&
+                                !lineCopy.Contains("menu_setprop"))
+                            {
+                                string replacebleString = '"' + "%L" + '"' + ',' + " LANG_PLAYER," + '"' + dicName + '"';
+                                lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy),
+                                    replacebleString);
+                            }
+
+                            string quoteLine = '"'.ToString();
+                            Console.WriteLine("COPY: " + lineCopy);
+                            if (lineCopy.Contains("menu_create") && lineCopy.Count(x => quoteLine.Contains(x)) >= 4)
+                            {
+                                sw.WriteLine("new szStringBuf[64]");
+                                sw.WriteLine($"formatex(szStringBuf, charsmax(szStringBuf), " + '"' + "%L" + '"' +
+                                             $", LANG_PLAYER," + '"' + dicName + '"' + ");");
+                                lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy),
+                                    "szStringBuf");
+                            }
+
+                            if (lineCopy.Contains("menu_additem"))
+                            {
+                                sw.WriteLine("formatex(szStringBuf, charsmax(szStringBuf)," + '"' + "%L" + '"' +
+                                             $", LANG_PLAYER," + '"' + dicName + '"' + ");");
+                                lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy), "szStringBuf");
+                            }
+
                         }
 
-                        if (lineCopy.Contains("menu_create") )
-                        {
-                            sw.WriteLine("new szStringBuf[64]");
-                            sw.WriteLine($"formatex(szStringBuf, charsmax(szStringBuf), " + '"' + "%L" + '"' +
-                                         $", LANG_PLAYER," + '"' + dicName + '"' + ");");
-                            lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy),
-                                "szStringBuf");
-                        }
-
-                        if (lineCopy.Contains("menu_additem"))
-                        {
-                            sw.WriteLine("formatex(szStringBuf, charsmax(szStringBuf)," + '"' + "%L" + '"' +
-                                         $", LANG_PLAYER," + '"' + dicName + '"' + ");");
-                            lineCopy = lineCopy.Replace(CodeLineProcessor.getHardcodedFullPart(lineCopy), "szStringBuf");
-                        }
-
+                        lineCopy = lineCopy.Replace(@"\w", "").Replace(@"\s", "").Replace(@"\y", "");
+                        sw.WriteLine(lineCopy);
                     }
-
-                    lineCopy = lineCopy.Replace(@"\w", "").Replace(@"\s", "").Replace(@"\y", "");
-                    sw.WriteLine(lineCopy);
                 }
+                this.pairsContainer = translationContentContainer;
             }
-            this.pairsContainer = translationContentContainer;
         }
         
         public void handlePlugin()

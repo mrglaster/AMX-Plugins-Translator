@@ -24,12 +24,23 @@ namespace DictionaryGenerator.modules
             "menu_additem"
         };
 
+        public static bool isMenuRelatedLine(string line)
+        {
+            return line.Contains("menu_create") || line.Contains("menu_additem");
+        }
+
         
+        public static bool isTrueHardcodedMenu(string line)
+        {
+            string quoteLine = '"'.ToString();
+            return isMenuRelatedLine(line) && line.Count(x => quoteLine.Contains(x)) >= 4;
+        }
+
         /**Checks if Current Plugin Code Line contains required command/identifier */
         public static bool isRequiredLine(string codeLine)
         {
-            if (hasDictionaryReference(codeLine) || !hasHardcodedText(codeLine)) return false;
-            
+            if (hasDictionaryReference(codeLine) || !hasHardcodedText(codeLine) || codeLine.Length == 0) return false;
+            if (isMenuRelatedLine(codeLine) && !isTrueHardcodedMenu(codeLine)) return false;
             for (int i = 0; i < _codeLineIdentifiers.Length; i++)
             {
                 if (codeLine.Contains(_codeLineIdentifiers[i])) return true;
