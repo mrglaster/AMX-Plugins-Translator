@@ -159,7 +159,7 @@ namespace DictionaryGenerator.modules
                             }
 
                             string quoteLine = '"'.ToString();
-                            Console.WriteLine("COPY: " + lineCopy);
+                            Console.WriteLine("FOUND: " + lineCopy);
                             if (lineCopy.Contains("menu_create") && lineCopy.Count(x => quoteLine.Contains(x)) >= 4)
                             {
                                 sw.WriteLine("new szStringBuf[64]");
@@ -179,8 +179,8 @@ namespace DictionaryGenerator.modules
                         }
 
                         lineCopy = lineCopy.Replace(@"\w", "").Replace(@"\s", "").Replace(@"\y", "");
-                        sw.WriteLine(lineCopy);
                     }
+                    sw.WriteLine(lineCopy);
                 }
                 this.pairsContainer = translationContentContainer;
             }
