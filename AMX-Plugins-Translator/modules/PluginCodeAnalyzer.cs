@@ -66,11 +66,5 @@ namespace DictionaryGenerator.modules
         {
             return codeLine.Contains("%L");
         }
-
-      
-        
-
-
-
     }
 }
